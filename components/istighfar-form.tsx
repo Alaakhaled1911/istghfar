@@ -58,6 +58,9 @@ export function IstighfarForm() {
     setName("")
     setCount("")
     setIsLoading(false)
+    
+    // Dispatch custom event to refresh weekly stats
+    window.dispatchEvent(new CustomEvent("istighfar-refresh"))
     router.refresh()
   }
 
