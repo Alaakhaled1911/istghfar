@@ -134,9 +134,13 @@ export function WeeklyStats() {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(grouped).map(([name, dateData]) => {
-                const total = Object.values(dateData).reduce((sum, c) => sum + c, 0)
-                return (
+              {Object.entries(grouped)
+                .map(([name, dateData]) => {
+                  const total = Object.values(dateData).reduce((sum, c) => sum + c, 0)
+                  return { name, dateData, total }
+                })
+                .sort((a, b) => b.total - a.total)
+                .map(({ name, dateData, total }) => (
                   <tr key={name} className="border-b last:border-0">
                     <td className="py-3 px-2 font-medium">{name}</td>
                     {days.map((date) => (
@@ -146,8 +150,7 @@ export function WeeklyStats() {
                     ))}
                     <td className="py-3 px-2 text-center font-bold text-primary">{total.toLocaleString("ar-EG")}</td>
                   </tr>
-                )
-              })}
+                ))}
             </tbody>
           </table>
         </div>

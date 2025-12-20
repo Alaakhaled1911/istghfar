@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Trash2, Pencil, Check, X } from "lucide-react"
@@ -23,6 +24,9 @@ export function AdminDashboard({ entries, userEmail, onDataChange }: { entries: 
   const [showConfirm, setShowConfirm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState<number>(0)
+  const [newName, setNewName] = useState("")
+  const [newDate, setNewDate] = useState("")
+  const [newCount, setNewCount] = useState(0)
   const router = useRouter()
 
   const handleDeleteAll = async () => {
@@ -87,6 +91,30 @@ export function AdminDashboard({ entries, userEmail, onDataChange }: { entries: 
     setEditValue(0)
   }
 
+  const handleAddEntry = async () => {
+    if (!newName.trim() || !newDate || newCount <= 0) {
+      alert("يرجى ملء جميع الحقول بشكل صحيح")
+      return
+    }
+
+    const supabase = createClient()
+    const { error } = await supabase.from("istighfar_entries").insert({
+      name: newName.trim(),
+      count: newCount,
+      entry_date: newDate
+    })
+
+    if (error) {
+      alert("حدث خطأ أثناء الإضافة")
+      return
+    }
+
+    setNewName("")
+    setNewDate("")
+    setNewCount(0)
+    onDataChange()
+  }
+
   const summary: Record<string, { total: number; days: Record<string, number> }> = {}
   entries.forEach((entry) => {
     if (!summary[entry.name]) {
@@ -140,23 +168,67 @@ export function AdminDashboard({ entries, userEmail, onDataChange }: { entries: 
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.entries(summary).map(([name, data]) => (
-                        <tr key={name} className="border-b last:border-0">
-                          <td className="py-3 px-2 font-medium">{name}</td>
-                          {dates.slice(0, 7).map((date) => (
-                            <td key={date} className="py-3 px-2 text-center text-muted-foreground">
-                              {data.days[date] ? data.days[date].toLocaleString("ar-EG") : "-"}
+                      {Object.entries(summary)
+                        .sort((a, b) => b[1].total - a[1].total)
+                        .map(([name, data]) => (
+                          <tr key={name} className="border-b last:border-0">
+                            <td className="py-3 px-2 font-medium">{name}</td>
+                            {dates.slice(0, 7).map((date) => (
+                              <td key={date} className="py-3 px-2 text-center text-muted-foreground">
+                                {data.days[date] ? data.days[date].toLocaleString("ar-EG") : "-"}
+                              </td>
+                            ))}
+                            <td className="py-3 px-2 text-center font-bold text-primary">
+                              {data.total.toLocaleString("ar-EG")}
                             </td>
-                          ))}
-                          <td className="py-3 px-2 text-center font-bold text-primary">
-                            {data.total.toLocaleString("ar-EG")}
-                          </td>
-                        </tr>
-                      ))}
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Add New Entry */}
+          <Card>
+            <CardHeader>
+              <CardTitle>إضافة تسجيل جديد</CardTitle>
+              <CardDescription>أضف تسجيل لمستخدم في تاريخ محدد</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">الاسم</Label>
+                  <Input
+                    id="name"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="أدخل اسم المستخدم"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="date">التاريخ</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={newDate}
+                    onChange={(e) => setNewDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="count">العدد</Label>
+                  <Input
+                    id="count"
+                    type="number"
+                    value={newCount}
+                    onChange={(e) => setNewCount(Number(e.target.value) || 0)}
+                    min="1"
+                    placeholder="أدخل العدد"
+                  />
+                </div>
+                <Button onClick={handleAddEntry}>إضافة التسجيل</Button>
+              </div>
             </CardContent>
           </Card>
 
