@@ -41,10 +41,13 @@ export function IstighfarForm() {
       return
     }
 
+    // Default count to 0 if empty
+    const finalCount = count.trim() === "" ? "0" : count
+
     // Insert new entry
     const { error: insertError } = await supabase.from("istighfar_entries").insert({
       name: name.trim(),
-      count: Number.parseInt(count),
+      count: Number.parseInt(finalCount),
       entry_date: today,
     })
 
@@ -89,10 +92,9 @@ export function IstighfarForm() {
               id="count"
               type="number"
               placeholder="مثال: 1000"
-              min="1"
+              min="0"
               value={count}
               onChange={(e) => setCount(e.target.value)}
-              required
             />
           </div>
 
