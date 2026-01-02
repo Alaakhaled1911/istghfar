@@ -145,7 +145,12 @@ export function WeeklyStats() {
                     <td className="py-3 px-2 font-medium">{name}</td>
                     {days.map((date) => (
                       <td key={date} className="py-3 px-2 text-center text-muted-foreground">
-                        {dateData[date] ? dateData[date].toLocaleString("ar-EG") : "-"}
+                  {dateData.hasOwnProperty(date)
+  ? dateData[date] === 0 
+    ? "..." 
+    : dateData[date].toLocaleString("ar-EG")
+  : "-"
+}
                       </td>
                     ))}
                     <td className="py-3 px-2 text-center font-bold text-primary">{total.toLocaleString("ar-EG")}</td>

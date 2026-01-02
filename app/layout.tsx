@@ -11,7 +11,7 @@ const notoKufi = Noto_Kufi_Arabic({ subsets: ["arabic"] })
 export const metadata: Metadata = {
   title: "عداد الاستغفار",
   description: "سجّل استغفارك اليومي",
-  generator: "v0.app",
+  generator: "alaa",
   icons: {
     icon: [
       {
